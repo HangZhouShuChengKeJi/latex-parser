@@ -449,21 +449,18 @@ public class TexParser {
             Atom atom = oldAtomList.get(i);
             if (atom instanceof CodePointAtom) {
                 CodePointAtom cpAtom = (CodePointAtom) atom;
-                // 跳过运算符
-                if (!CodePointUtil.isOperator(cpAtom.getValue())) {
-                    if (builder == null) {
-                        builder = new StringBuilder();
-                        if (newAtomList == null) {
-                            if (i > 0) {
-                                newAtomList = new ArrayList<>(oldAtomList.subList(0, i));
-                            } else {
-                                newAtomList = new ArrayList<>();
-                            }
+                if (builder == null) {
+                    builder = new StringBuilder();
+                    if (newAtomList == null) {
+                        if (i > 0) {
+                            newAtomList = new ArrayList<>(oldAtomList.subList(0, i));
+                        } else {
+                            newAtomList = new ArrayList<>();
                         }
                     }
-                    builder.appendCodePoint(cpAtom.getValue());
-                    continue;
                 }
+                builder.appendCodePoint(cpAtom.getValue());
+                continue;
             }
 
             if (builder != null) {
