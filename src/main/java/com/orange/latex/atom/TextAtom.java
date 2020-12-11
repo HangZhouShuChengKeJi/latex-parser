@@ -9,8 +9,6 @@ package com.orange.latex.atom;
 public class TextAtom extends Atom {
     private String text;
 
-    private StringBuilder builder;
-
     public TextAtom(String text) {
         this.text = text;
     }
@@ -23,7 +21,8 @@ public class TextAtom extends Atom {
         return text;
     }
 
-    public void append(int codePoint) {
-        builder.appendCodePoint(codePoint);
+    @Override
+    public String toString() {
+        return text;
     }
 }
