@@ -28,60 +28,60 @@ public class TexParser {
     /**
      * 空格 的 codePoint
      */
-    public static final int SPACE_CP = 0x0020;
+    public static final int SPACE_CP = CodePointUtil.SPACE_CP;
 
     /**
      * 反斜杠（latex 转义符） 的 codePoint
      */
-    public static final int ESCAPE_CP = 0x005C;
+    public static final int ESCAPE_CP = CodePointUtil.ESCAPE_CP;
 
     /**
      * 上标 的 codePoint
      */
-    public static final int SUPER_SCRIPT_CP = 0x005E;
+    public static final int SUPER_SCRIPT_CP = CodePointUtil.SUPER_SCRIPT_CP;
     /**
      * 下标 的 codePoint
      */
-    public static final int SUB_SCRIPT_CP   = 0x005F;
+    public static final int SUB_SCRIPT_CP   = CodePointUtil.SUB_SCRIPT_CP;
 
     /**
      * 左大括号 的 codePoint
      */
-    public static final int L_GROUP_CP = 0x007B;
+    public static final int L_GROUP_CP = CodePointUtil.L_GROUP_CP;
     /**
      * 右大括号 的 codePoint
      */
-    public static final int R_GROUP_CP = 0x007D;
+    public static final int R_GROUP_CP = CodePointUtil.R_GROUP_CP;
 
     /**
      * 百分号: %
      */
-    public static final int CP_PERCENT_SIGN = 0x0025;
+    public static final int CP_PERCENT_SIGN = CodePointUtil.CP_PERCENT_SIGN;
     /**
      * 符号：&
      */
-    public static final int CP_AMPERSAND    = 0x0026;
+    public static final int CP_AMPERSAND    = CodePointUtil.CP_AMPERSAND;
     /**
      * 符号：#
      */
-    public static final int CP_NUMBER_SIGN  = 0x0023;
+    public static final int CP_NUMBER_SIGN  = CodePointUtil.CP_NUMBER_SIGN;
     /**
      * 符号：$
      */
-    public static final int CP_DOLLAR_SIGN  = 0x0024;
+    public static final int CP_DOLLAR_SIGN  = CodePointUtil.CP_DOLLAR_SIGN;
     /**
      * 符号：~
      */
-    public static final int TILDE_CP        = 0x007E;
+    public static final int TILDE_CP        = CodePointUtil.TILDE_CP;
 
     /**
      * 左中括号 的 codePoint
      */
-    public static final int L_BRACKET_CP = 0x005B;
+    public static final int L_BRACKET_CP = CodePointUtil.L_BRACKET_CP;
     /**
      * 右中括号 的 codePoint
      */
-    public static final int R_BRACKET_CP = 0x005D;
+    public static final int R_BRACKET_CP = CodePointUtil.R_BRACKET_CP;
 
     private String plainText;
     private int[]  codePoints;
