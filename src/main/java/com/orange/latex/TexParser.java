@@ -534,6 +534,7 @@ public class TexParser {
      */
     public static Atom buildAtomFromText(String plainText) {
         try {
+            // TODO: 2020/12/11 这里简单的使用 BigDecimal 来解析数字，会导致 科学计数法 的特征被忽略掉
             BigDecimal value = new BigDecimal(plainText);
             if (value.scale() == 0) {
                 long longValue = value.longValue();
