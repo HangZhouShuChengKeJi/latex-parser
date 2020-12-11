@@ -11,7 +11,7 @@ import com.orange.latex.atom.LeftRightAtom;
 import com.orange.latex.atom.SubAtom;
 import com.orange.latex.atom.SupAtom;
 import com.orange.latex.atom.TextAtom;
-import com.orange.latex.util.CharacterUtil;
+import com.orange.latex.util.CodePointUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,7 +28,13 @@ public class TexParser {
     /**
      * 空格 的 codePoint
      */
-    public static final int SPACE_CP        = 0x0020;
+    public static final int SPACE_CP = 0x0020;
+
+    /**
+     * 反斜杠（latex 转义符） 的 codePoint
+     */
+    public static final int ESCAPE_CP = 0x005C;
+
     /**
      * 上标 的 codePoint
      */
@@ -37,30 +43,45 @@ public class TexParser {
      * 下标 的 codePoint
      */
     public static final int SUB_SCRIPT_CP   = 0x005F;
+
     /**
      * 左大括号 的 codePoint
      */
-    public static final int L_GROUP_CP      = 0x007B;
+    public static final int L_GROUP_CP = 0x007B;
     /**
      * 右大括号 的 codePoint
      */
-    public static final int R_GROUP_CP      = 0x007D;
+    public static final int R_GROUP_CP = 0x007D;
+
+    /**
+     * 百分号: %
+     */
+    public static final int CP_PERCENT_SIGN = 0x0025;
+    /**
+     * 符号：&
+     */
+    public static final int CP_AMPERSAND    = 0x0026;
+    /**
+     * 符号：#
+     */
+    public static final int CP_NUMBER_SIGN  = 0x0023;
+    /**
+     * 符号：$
+     */
+    public static final int CP_DOLLAR_SIGN  = 0x0024;
+    /**
+     * 符号：~
+     */
+    public static final int TILDE_CP        = 0x007E;
+
     /**
      * 左中括号 的 codePoint
      */
-    public static final int L_BRACKET_CP    = 0x005B;
+    public static final int L_BRACKET_CP = 0x005B;
     /**
      * 右中括号 的 codePoint
      */
-    public static final int R_BRACKET_CP    = 0x005D;
-    /**
-     * 波浪线 的 codePoint
-     */
-    public static final int TILDE_CP        = 0x007E;
-    /**
-     * 反斜杠（latex 转义符） 的 codePoint
-     */
-    public static final int ESCAPE_CP       = 0x005C;
+    public static final int R_BRACKET_CP = 0x005D;
 
     private String plainText;
     private int[]  codePoints;
@@ -93,7 +114,7 @@ public class TexParser {
     private String parseCmdName() {
         StringBuilder cmdBuilder = new StringBuilder();
         int codePoint = codePoints[pos++];
-        while (CharacterUtil.isLatinAlphabet(codePoint)) {
+        while (CodePointUtil.isLatinAlphabet(codePoint)) {
             cmdBuilder.appendCodePoint(codePoint);
             codePoint = codePoints[pos++];
         }
@@ -108,7 +129,9 @@ public class TexParser {
             if (codePoint == ESCAPE_CP) {
                 // 转义符
                 int nextCodePoint = codePoints[pos];
-                if (CharacterUtil.isLatinAlphabet(nextCodePoint)) {
+                if (CodePointUtil.isLatinAlphabet(nextCodePoint)) {
+                    // 反斜杠后根字母时，都是命令
+
                     String cmdName = parseCmdName();
 
                     if (Cmds.CMD_LEFT.equals(cmdName)) {
@@ -149,12 +172,15 @@ public class TexParser {
                     }
                 } else {
                     // 转义字符视为字符串
-
-                    // 指针前进
-                    pos++;
-
-                    // 入栈
-                    pushToStack(new CodePointAtom(nextCodePoint));
+                    if (isSupportEscape(nextCodePoint)) {
+                        // 指针前进
+                        pos++;
+                        // 入栈
+                        pushToStack(new CodePointAtom(nextCodePoint));
+                    } else {
+                        // TODO: 2020/12/11 还有其它的转义字符，遇到了在这里补充
+                        throw new LatexParseException("未知的转义符：\"\\" + CodePointUtil.toString(nextCodePoint) + "\"");
+                    }
                 }
                 continue;
             } else if (codePoint == SPACE_CP) {
@@ -284,7 +310,7 @@ public class TexParser {
                             addToTopAtom(topAtom, false);
                         }
                         return;
-                    }  else {
+                    } else {
                         // 继续寻找上一级元素
                         continue;
                     }
@@ -400,7 +426,8 @@ public class TexParser {
             Atom atom = oldAtomList.get(i);
             if (atom instanceof CodePointAtom) {
                 CodePointAtom cpAtom = (CodePointAtom) atom;
-                if (!CharacterUtil.isOperator(cpAtom.getCodePoint())) {
+                // 跳过运算符
+                if (!CodePointUtil.isOperator(cpAtom.getCodePoint())) {
                     if (builder == null) {
                         builder = new StringBuilder();
                         if (newAtomList == null) {
@@ -446,6 +473,31 @@ public class TexParser {
 
         // 返回新的元素
         return new AtomArray(newAtomList);
+    }
+
+    /**
+     * 判断 codePoint 是否为可转义字符。真正使用时，必须优先判断前一个字符是否为转义字符。
+     *
+     * 支持的转义字符："# $ % ^ & _ { } ~ \"
+     *
+     * @return
+     */
+    private boolean isSupportEscape(int codePoint) {
+        switch (codePoint) {
+            case ESCAPE_CP:
+            case L_GROUP_CP:
+            case R_GROUP_CP:
+            case SUPER_SCRIPT_CP:
+            case SUB_SCRIPT_CP:
+            case CP_NUMBER_SIGN:
+            case CP_PERCENT_SIGN:
+            case CP_DOLLAR_SIGN:
+            case TILDE_CP:
+            case CP_AMPERSAND:
+                return true;
+            default:
+                return false;
+        }
     }
 
 
