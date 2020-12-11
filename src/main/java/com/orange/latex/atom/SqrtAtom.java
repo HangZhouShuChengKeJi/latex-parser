@@ -12,11 +12,13 @@ import com.orange.latex.LatexParseException;
 public class SqrtAtom extends SingleOptionAtom {
 
     /**
-     * 开 n 次方的 n 表达式
+     * 根指数。
+     *
+     * 例如：开平方时，根指数是 2；开立方时，根指数是 3
      */
     private Atom root;
     /**
-     * 被开次方的数
+     * 被开方数
      */
     private Atom arg;
 
