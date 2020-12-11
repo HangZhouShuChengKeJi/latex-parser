@@ -6,7 +6,7 @@ package com.orange.latex.atom;
  * @author 小天
  * @date 2020/12/7 13:10
  */
-public class TextAtom extends Atom {
+public class TextAtom extends Atom implements Displayable {
     private String text;
 
     public TextAtom(String text) {

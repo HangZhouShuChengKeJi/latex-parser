@@ -3,6 +3,7 @@ package com.orange.latex;
 import com.orange.latex.atom.Atom;
 import com.orange.latex.atom.AtomArray;
 import com.orange.latex.atom.BracketAtom;
+import com.orange.latex.atom.CharAtom;
 import com.orange.latex.atom.CmdAtom;
 import com.orange.latex.atom.CodePointAtom;
 import com.orange.latex.atom.EnvironmentAtom;
@@ -11,8 +12,12 @@ import com.orange.latex.atom.LeftRightAtom;
 import com.orange.latex.atom.SubAtom;
 import com.orange.latex.atom.SupAtom;
 import com.orange.latex.atom.TextAtom;
+import com.orange.latex.atom.number.BigDecimalAtom;
+import com.orange.latex.atom.number.IntAtom;
+import com.orange.latex.atom.number.LongAtom;
 import com.orange.latex.util.CodePointUtil;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
@@ -89,12 +94,30 @@ public class TexParser {
 
     private Stack<Atom> atomStack;
 
+    /**
+     * 是否开启数字检测
+     */
+    private boolean enableDigitalDetect = false;
+
+    /**
+     * @param plainText 待检测的公式文本
+     */
     public TexParser(String plainText) {
+        this(plainText, false);
+    }
+
+    /**
+     * @param plainText           待检测的公式文本
+     * @param enableDigitalDetect 是否开启数字检测
+     */
+    public TexParser(String plainText, boolean enableDigitalDetect) {
         this.plainText = plainText;
         this.codePoints = plainText.codePoints().toArray();
         this.pos = 0;
 
-        atomStack = new Stack<>();
+        this.atomStack = new Stack<>();
+
+        this.enableDigitalDetect = enableDigitalDetect;
     }
 
     public Atom parse() {
@@ -226,7 +249,7 @@ public class TexParser {
                 int nextCodePoint = codePoints[pos];
                 SubAtom subAtom = new SubAtom();
                 if (nextCodePoint != L_GROUP_CP) {
-                    subAtom.addArg(new TextAtom(nextCodePoint));
+                    subAtom.addArg(buildSingleCodePointAtom(nextCodePoint));
                     // 指针前进
                     pos++;
                 }
@@ -239,7 +262,7 @@ public class TexParser {
                 SupAtom supAtom = new SupAtom();
 
                 if (nextCodePoint != L_GROUP_CP) {
-                    supAtom.addArg(new TextAtom(nextCodePoint));
+                    supAtom.addArg(buildSingleCodePointAtom(nextCodePoint));
                     // 指针前进
                     pos++;
                 }
@@ -427,7 +450,7 @@ public class TexParser {
             if (atom instanceof CodePointAtom) {
                 CodePointAtom cpAtom = (CodePointAtom) atom;
                 // 跳过运算符
-                if (!CodePointUtil.isOperator(cpAtom.getCodePoint())) {
+                if (!CodePointUtil.isOperator(cpAtom.getValue())) {
                     if (builder == null) {
                         builder = new StringBuilder();
                         if (newAtomList == null) {
@@ -438,13 +461,13 @@ public class TexParser {
                             }
                         }
                     }
-                    builder.appendCodePoint(cpAtom.getCodePoint());
+                    builder.appendCodePoint(cpAtom.getValue());
                     continue;
                 }
             }
 
             if (builder != null) {
-                newAtomList.add(new TextAtom(builder.toString()));
+                newAtomList.add(buildAtomFromText(builder.toString()));
                 builder = null;
             }
             if (newAtomList != null) {
@@ -463,7 +486,7 @@ public class TexParser {
 
         // 处理未结束的 builder
         if (builder != null) {
-            newAtomList.add(new TextAtom(builder.toString()));
+            newAtomList.add(buildAtomFromText(builder.toString()));
         }
 
         if (newAtomList.size() == 1) {
@@ -476,8 +499,63 @@ public class TexParser {
     }
 
     /**
-     * 判断 codePoint 是否为可转义字符。真正使用时，必须优先判断前一个字符是否为转义字符。
+     * 根据单个 CodePoint 创建 atom。
+     * <ul>
+     *     <li>cp 为单个数字时，返回 IntAtom</li>
+     *     <li>cp 为基本拉丁文字时，返回 CharAtom</li>
+     *     <li>否则，返回 CodePointAtom</li>
+     * </ul>
      *
+     * @param cp
+     *
+     * @return
+     */
+    public static Atom buildSingleCodePointAtom(int cp) {
+        if (CodePointUtil.isAsciiDigit(cp)) {
+            return new IntAtom(CodePointUtil.toAsciiDigit(cp));
+        }
+        if (CodePointUtil.isBasicLatin(cp)) {
+            return new CharAtom((char) cp);
+        }
+        return new CodePointAtom(cp);
+    }
+
+    /**
+     * 根据字符串构建 atom。
+     * <ul>
+     *     <li>plainText 为 int 时，返回 IntAtom</li>
+     *     <li>plainText 为 long 时，返回 LongAtom</li>
+     *     <li>plainText 为 BigDecimal 时，返回 BigDecimal</li>
+     *     <li>否则，返回 TextAtom</li>
+     * </ul>
+     *
+     * @param plainText
+     *
+     * @return
+     *
+     * @see BigDecimal
+     */
+    public static Atom buildAtomFromText(String plainText) {
+        try {
+            BigDecimal value = new BigDecimal(plainText);
+            if (value.scale() == 0) {
+                long longValue = value.longValue();
+                if (longValue > Integer.MAX_VALUE || longValue < Integer.MIN_VALUE) {
+                    return new LongAtom(longValue);
+                } else {
+                    return new IntAtom((int) longValue);
+                }
+            } else {
+                return new BigDecimalAtom(value);
+            }
+        } catch (NumberFormatException e) {
+        }
+        return new TextAtom(plainText);
+    }
+
+    /**
+     * 判断 codePoint 是否为可转义字符。真正使用时，必须优先判断前一个字符是否为转义字符。
+     * <p>
      * 支持的转义字符："# $ % ^ & _ { } ~ \"
      *
      * @return

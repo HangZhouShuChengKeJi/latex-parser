@@ -2,6 +2,7 @@ package com.orange.latex.atom;
 
 import com.orange.latex.Cmds;
 import com.orange.latex.LatexParseException;
+import com.orange.latex.atom.number.IntAtom;
 
 /**
  * 开根号
@@ -48,6 +49,9 @@ public class SqrtAtom extends SingleOptionAtom {
     public boolean addArg(Atom atom) {
         if (arg == null) {
             this.arg = atom;
+            if (root == null) {
+                root = new IntAtom(2);
+            }
             return true;
         }
         return false;

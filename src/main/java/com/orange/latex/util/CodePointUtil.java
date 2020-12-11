@@ -120,6 +120,9 @@ public class CodePointUtil {
      * @param codePoint
      *
      * @return
+     *
+     * @see #isUppercaseLatinAlphabet(int)
+     * @see #isLowercaseLatinAlphabet(int)
      */
     public static boolean isLatinAlphabet(int codePoint) {
         return (codePoint >= 97 && codePoint <= 120)
@@ -127,25 +130,47 @@ public class CodePointUtil {
     }
 
     /**
-     * 是否为答谢字母
+     * 是否为大写字母。范围： [0x0041 ~ 0x005A]
      *
      * @param codePoint
      *
      * @return
      */
     public static boolean isUppercaseLatinAlphabet(int codePoint) {
-        return codePoint >= 97 && codePoint <= 120;
+        return codePoint >= 0x0041 && codePoint <= 0x005A;
     }
 
     /**
-     * 是否为小写字母
+     * 是否为小写字母。范围： [0x0061 ~ 0x007A]
      *
      * @param codePoint
      *
      * @return
      */
     public static boolean isLowercaseLatinAlphabet(int codePoint) {
-        return codePoint >= 65 && codePoint <= 90;
+        return codePoint >= 0x0061 && codePoint <= 0x007A;
+    }
+
+    /**
+     * 是否为基本的拉丁文。范围： [0x0021 ~ 0x007E]
+     *
+     * @param codePoint
+     *
+     * @return
+     */
+    public static boolean isBasicLatin(int codePoint) {
+        return codePoint >= 0x0021 && codePoint <= 0x007E;
+    }
+
+    /**
+     * 是否为 ascii 数字。范围： [0x0030 ~ 0x0039]
+     *
+     * @param codePoint
+     *
+     * @return
+     */
+    public static boolean isAsciiDigit(int codePoint) {
+        return codePoint >= 0x0030 && codePoint <= 0x0039;
     }
 
     /**
@@ -163,6 +188,19 @@ public class CodePointUtil {
                 || codePoint == CP_LESS_THAN_SIGN
                 || codePoint == CP_GREATER_THAN_SIGN
                 ;
+    }
+
+    /**
+     * 转换为 ascii 数字
+     *
+     * @param codePoint
+     *
+     * @return
+     *
+     * @see #isAsciiDigit(int)
+     */
+    public static int toAsciiDigit(int codePoint) {
+        return codePoint - 0x0030;
     }
 
     /**
