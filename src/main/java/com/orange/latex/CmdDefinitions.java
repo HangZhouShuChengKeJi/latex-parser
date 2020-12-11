@@ -17,16 +17,14 @@ public class CmdDefinitions {
     private static Map<String, CmdAtomDefinition> atomMap = new HashMap<>();
 
     static {
-        // 分数
-        atomMap.put("frac", new CmdAtomDefinition("frac", FractionAtom.class));
-        // 根号
-        atomMap.put("sqrt", new CmdAtomDefinition("sqrt", SqrtAtom.class));
-        // 加减符号
-        atomMap.put("pm", new CmdAtomDefinition("pm", 0, 0));
+        atomMap.put(Cmds.CMD_FRAC, new CmdAtomDefinition(Cmds.CMD_FRAC, FractionAtom.class));
+        atomMap.put(Cmds.CMD_SQRT, new CmdAtomDefinition(Cmds.CMD_SQRT, SqrtAtom.class));
+        atomMap.put(Cmds.CMD_PM, new CmdAtomDefinition(Cmds.CMD_PM));
+        atomMap.put(Cmds.CMD_PI, new CmdAtomDefinition(Cmds.CMD_PI));
     }
 
     public static CmdAtomDefinition get(String cmd) {
-        return atomMap.getOrDefault(cmd, new CmdAtomDefinition(cmd, 0, 0));
+        return atomMap.getOrDefault(cmd, new CmdAtomDefinition(cmd));
     }
 
     public static CmdAtom newCmd(String cmd) {

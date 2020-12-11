@@ -21,10 +21,18 @@ public class CmdAtomDefinition {
      * 可选参数数量
      */
     protected int    optionalArgSize;
+
     /**
      * 实现类
      */
     private Class<? extends CmdAtom> atomClass;
+
+    public CmdAtomDefinition(String cmd) {
+        this.cmd = cmd;
+        this.argSize = 0;
+        this.optionalArgSize = 0;
+
+    }
 
     public CmdAtomDefinition(String cmd, int argSize, int optionalArgSize) {
         this.cmd = cmd;
