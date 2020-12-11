@@ -34,7 +34,7 @@ public class CmdDefinitions {
         Class<? extends CmdAtom> atomClass = cmdNodeDefinition.getAtomClass();
         if (atomClass == null) {
             // 未知命令
-            return new CmdAtom(cmd, cmdNodeDefinition.getArgSize());
+            return new CmdAtom(cmd, cmdNodeDefinition.getArgSize(), cmdNodeDefinition.getOptionalArgSize());
         }
         try {
             // 未知命令

@@ -11,10 +11,6 @@ public class TextAtom extends Atom {
 
     private StringBuilder builder;
 
-    public TextAtom() {
-        builder = new StringBuilder();
-    }
-
     public TextAtom(String text) {
         this.text = text;
     }

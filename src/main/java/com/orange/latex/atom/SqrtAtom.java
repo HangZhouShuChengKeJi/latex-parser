@@ -16,7 +16,7 @@ public class SqrtAtom extends SingleOptionAtom {
      */
     private Atom root;
     /**
-     * 被开次方的书
+     * 被开次方的数
      */
     private Atom arg;
 
