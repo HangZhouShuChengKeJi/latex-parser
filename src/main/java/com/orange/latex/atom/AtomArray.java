@@ -24,15 +24,6 @@ public class AtomArray extends Atom {
     }
 
     public void addAtom(Atom atom) {
-        if (atom instanceof TextAtom) {
-            int prevIndex = atomList.size() - 1;
-            if (prevIndex >= 0) {
-                Atom prevAtom = atomList.get(prevIndex);
-                if (prevAtom instanceof TextAtom) {
-
-                }
-            }
-        }
         atomList.add(atom);
     }
 }

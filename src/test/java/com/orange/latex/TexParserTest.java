@@ -73,4 +73,28 @@ public class TexParserTest {
         rootAtomArray = (AtomArray)atom;
         Assert.assertEquals(2, rootAtomArray.getAtomList().size());
     }
+
+    @Test
+    public void testEnv() {
+
+        TexParser texParser;
+        Atom atom;
+        AtomArray rootAtomArray;
+
+        List<String> texList = new ArrayList<>();
+
+        texList.add("\\left\\{ " +
+                "\\begin{array}{l}" +
+                "{x=\\frac{1}{2}} \\\\ " +
+                "{y=\\sqrt{2^{9 + a}}} " +
+                "\\end{array} " +
+                "\\right.");
+
+        for (int i = 0; i < texList.size(); i++) {
+            String plainText = texList.get(i);
+            texParser = new TexParser(plainText);
+            atom = texParser.parse();
+            System.out.printf("[%d] %s : %s \n", i, plainText, JSON.toJSONString(atom));
+        }
+    }
 }

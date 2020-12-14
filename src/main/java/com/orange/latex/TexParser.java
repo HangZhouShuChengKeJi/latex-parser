@@ -9,6 +9,7 @@ import com.orange.latex.atom.CodePointAtom;
 import com.orange.latex.atom.EnvironmentAtom;
 import com.orange.latex.atom.GroupAtom;
 import com.orange.latex.atom.LeftRightAtom;
+import com.orange.latex.atom.RowAtom;
 import com.orange.latex.atom.SubAtom;
 import com.orange.latex.atom.SupAtom;
 import com.orange.latex.atom.TextAtom;
@@ -188,6 +189,8 @@ public class TexParser {
                         EnvironmentAtom envAtom = new EnvironmentAtom();
                         // 入栈
                         pushToStack(envAtom);
+
+
                     } else {
                         CmdAtom cmdAtom = CmdDefinitions.newCmd(cmdName);
                         // 入栈
@@ -309,11 +312,7 @@ public class TexParser {
         while (true) {
             // 获取栈顶元素
             Atom topAtom = atomStack.peek();
-            if (topAtom instanceof AtomArray) {
-                AtomArray atomArray = (AtomArray) topAtom;
-                atomArray.addAtom(atom);
-                return;
-            } else if (topAtom instanceof CmdAtom) {
+            if (topAtom instanceof CmdAtom) {
                 CmdAtom cmdAtom = (CmdAtom) topAtom;
 
                 // 添加到 cmd 的参数中
@@ -344,16 +343,25 @@ public class TexParser {
                 if (addOptionAtomToEnv(envAtom, atom)) {
                     return;
                 }
-                // 添加到 env 的内容中
-                if (addContentAtomToEnv(envAtom, atom)) {
-                    return;
+                if (!(atom instanceof RowAtom)) {
+                    // 创建一个 RowAtom，并入栈
+                    RowAtom rowAtom = new RowAtom();
+                    // 入栈
+                    pushToStack(rowAtom);
+
+                    // 继续处理 atom
+                    continue;
                 }
-                // 添加失败时，表示该 env 需要的参数已经解析完毕，将该命令出栈
-                atomStack.pop();
-
-                // 添加到父级元素中
-                addToTopAtom(topAtom, false);
-
+                RowAtom rowAtom = (RowAtom) atom;
+                envAtom.addRowAtom(rowAtom);
+                return;
+            } else if (topAtom instanceof RowAtom) {
+                RowAtom rowAtom = (RowAtom) topAtom;
+                addToRowAtom(rowAtom, atom);
+                return;
+            } else if (topAtom instanceof AtomArray) {
+                AtomArray atomArray = (AtomArray) topAtom;
+                atomArray.addAtom(atom);
                 return;
             } else {
                 throw new LatexParseException("格式错误");
@@ -392,40 +400,56 @@ public class TexParser {
         return true;
     }
 
-    /**
-     * 添加元素到 env 的 内容中
-     *
-     * @param envAtom
-     * @param atom
-     *
-     * @return true: 添加成功；false：添加失败（遇到了 env 的 end 部分）
-     */
-    private boolean addContentAtomToEnv(EnvironmentAtom envAtom, Atom atom) {
-        List<Atom> contentList = envAtom.getContentList();
+    private void addToRowAtom(RowAtom rowAtom, Atom atom) {
 
-        if (!contentList.isEmpty()) {
+        // TODO: 2020/12/14 列元素解析
+
+        List<Atom> contentList = rowAtom.getAtomList();
+        if (!rowAtom.getAtomList().isEmpty()) {
             Atom prevAtom = contentList.get(contentList.size() - 1);
             if (prevAtom instanceof CmdAtom) {
                 CmdAtom cmdAtom = (CmdAtom) prevAtom;
                 // 如果前一个元素是 "end" 命令，则终止 env
                 if (Cmds.CMD_END.equals(cmdAtom.getCmd())) {
-                    // end 命令处理。 end 命令后的元素格式只能是： "{envName}"
-                    if (atom instanceof TextAtom) {
-                        String envName = ((TextAtom) atom).getText();
-                        if (!envAtom.getEnv().equals(envName)) {
-                            throw new LatexParseException("环境 \"" + envAtom.getEnv() + "\" 的 \\end 参数错误");
+                    // 出栈
+                    atomStack.pop();
+                    // 添加到父级元素中
+                    addToTopAtom(rowAtom, false);
+
+                    Atom topAtom = atomStack.pop();
+                    if (topAtom instanceof EnvironmentAtom) {
+                        EnvironmentAtom envAtom = (EnvironmentAtom) topAtom;
+                        // end 命令处理。 end 命令后的元素格式只能是： "{envName}"
+                        if (atom instanceof TextAtom) {
+                            String envName = ((TextAtom) atom).getText();
+                            if (!envAtom.getEnv().equals(envName)) {
+                                throw new LatexParseException("环境 \"" + envAtom.getEnv() + "\" 的 \\end 参数错误");
+                            }
+                        } else {
+                            throw new LatexParseException("环境 \"" + envAtom.getEnv() + "\" 格式错误");
                         }
+                        // 移除最后的 end 元素
+                        contentList.remove(contentList.size() - 1);
+                        // 添加到父级元素中
+                        addToTopAtom(envAtom, false);
+                        return;
                     } else {
-                        throw new LatexParseException("环境 \"" + envAtom.getEnv() + "\" 格式错误");
+                        throw new LatexParseException("环境格式错误");
                     }
-                    // 移除最后的 end 元素
-                    contentList.remove(contentList.size() - 1);
-                    return false;
                 }
             }
         }
-        envAtom.getContentList().add(atom);
-        return true;
+        if (atom instanceof CodePointAtom) {
+            CodePointAtom cpAtom = (CodePointAtom) atom;
+            if (CodePointUtil.ESCAPE_CP == cpAtom.getValue()) {
+                // 出栈
+                atomStack.pop();
+                // 添加到父级元素中
+                addToTopAtom(rowAtom, false);
+                return;
+            }
+        }
+        rowAtom.addAtom(atom);
     }
 
     /**
