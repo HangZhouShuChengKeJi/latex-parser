@@ -55,7 +55,7 @@ public class EnvironmentAtom extends Atom {
         return rowList;
     }
 
-    public void addRowAtom(RowAtom rowAtom) {
+    public void addRow(RowAtom rowAtom) {
         this.rowList.add(rowAtom);
 
     }

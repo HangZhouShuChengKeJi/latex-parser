@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.orange.latex.atom.Atom;
 import com.orange.latex.atom.AtomArray;
+import com.orange.latex.atom.EnvironmentAtom;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -83,10 +84,21 @@ public class TexParserTest {
 
         List<String> texList = new ArrayList<>();
 
+        texList.add("\\begin{array}{l}" +
+                "{x=\\frac{1}{2}} & (1) \\\\ " +
+                "{y=\\sqrt{2^{9 + a}}} & (2)  " +
+                "\\end{array}");
+
+        texList.add("\\begin{array}{l}" +
+                "x=\\frac{1}{2} & (1) \\\\ " +
+                "y=\\sqrt{2^{9 + a}} & (2)  " +
+                "\\end{array}");
+
+
         texList.add("\\left\\{ " +
                 "\\begin{array}{l}" +
-                "{x=\\frac{1}{2}} \\\\ " +
-                "{y=\\sqrt{2^{9 + a}}} " +
+                "{x=\\frac{1}{2}} & (1) \\\\ " +
+                "{y=\\sqrt{2^{9 + a}}} & (2)  " +
                 "\\end{array} " +
                 "\\right.");
 
@@ -96,5 +108,21 @@ public class TexParserTest {
             atom = texParser.parse();
             System.out.printf("[%d] %s : %s \n", i, plainText, JSON.toJSONString(atom));
         }
+
+        String plainText = "\\begin{array}{l}" +
+                "x=\\frac{1}{2} & (1) \\\\ " +
+                "y=\\sqrt{2^{9 + a}} & (2)  \\\\ " +
+                "y=1  " +
+                "\\end{array}";
+        texParser = new TexParser(plainText);
+        atom = texParser.parse();
+        System.out.printf("%s : %s \n", plainText, JSON.toJSONString(atom));
+
+        Assert.assertTrue(atom instanceof EnvironmentAtom);
+        EnvironmentAtom envAtom = (EnvironmentAtom) atom;
+        Assert.assertTrue(envAtom.getRowList().size() == 3);
+        Assert.assertTrue(envAtom.getRowList().get(0).getAtomList().size() == 2);
+        Assert.assertTrue(envAtom.getRowList().get(1).getAtomList().size() == 2);
+        Assert.assertTrue(envAtom.getRowList().get(2).getAtomList().size() == 1);
     }
 }

@@ -3,6 +3,7 @@ package com.orange.latex;
 import com.orange.latex.atom.Atom;
 import com.orange.latex.atom.AtomArray;
 import com.orange.latex.atom.BracketAtom;
+import com.orange.latex.atom.CellAtom;
 import com.orange.latex.atom.CharAtom;
 import com.orange.latex.atom.CmdAtom;
 import com.orange.latex.atom.CodePointAtom;
@@ -189,8 +190,6 @@ public class TexParser {
                         EnvironmentAtom envAtom = new EnvironmentAtom();
                         // 入栈
                         pushToStack(envAtom);
-
-
                     } else {
                         CmdAtom cmdAtom = CmdDefinitions.newCmd(cmdName);
                         // 入栈
@@ -353,11 +352,21 @@ public class TexParser {
                     continue;
                 }
                 RowAtom rowAtom = (RowAtom) atom;
-                envAtom.addRowAtom(rowAtom);
+                envAtom.addRow(rowAtom);
                 return;
             } else if (topAtom instanceof RowAtom) {
+                if (!(atom instanceof CellAtom)) {
+                    // 创建 CellAtom，并入栈
+                    CellAtom cellAtom = new CellAtom();
+                    pushToStack(cellAtom);
+                    continue;
+                }
                 RowAtom rowAtom = (RowAtom) topAtom;
-                addToRowAtom(rowAtom, atom);
+                rowAtom.addCell((CellAtom) atom);
+                return;
+            } else if (topAtom instanceof CellAtom) {
+                CellAtom cellAtom = (CellAtom) topAtom;
+                addToCell(cellAtom, atom);
                 return;
             } else if (topAtom instanceof AtomArray) {
                 AtomArray atomArray = (AtomArray) topAtom;
@@ -400,12 +409,38 @@ public class TexParser {
         return true;
     }
 
-    private void addToRowAtom(RowAtom rowAtom, Atom atom) {
+    private void addToCell(CellAtom cellAtom, Atom atom) {
+        if (atom instanceof CodePointAtom) {
+            CodePointAtom cpAtom = (CodePointAtom) atom;
+            if (cpAtom.getValue() == CodePointUtil.CP_AMPERSAND) {
+                // 列分隔符
 
-        // TODO: 2020/12/14 列元素解析
+                // 出栈
+                atomStack.pop();
 
-        List<Atom> contentList = rowAtom.getAtomList();
-        if (!rowAtom.getAtomList().isEmpty()) {
+                // 取出栈顶的 RowAtom
+                RowAtom rowAtom = (RowAtom) atomStack.peek();
+                rowAtom.addCell(mergeAtomArray(cellAtom));
+                return;
+            }
+            if (cpAtom.getValue() == CodePointUtil.ESCAPE_CP) {
+                // 行分隔符
+
+                // 出栈
+                atomStack.pop();
+
+                // 栈顶的 RowAtom 出栈
+                RowAtom rowAtom = (RowAtom) atomStack.pop();
+                rowAtom.addCell(mergeAtomArray(cellAtom));
+
+                // 添加到父级元素中
+                addToTopAtom(rowAtom, false);
+                return;
+            }
+        }
+
+        List<Atom> contentList = cellAtom.getAtomList();
+        if (!cellAtom.getAtomList().isEmpty()) {
             Atom prevAtom = contentList.get(contentList.size() - 1);
             if (prevAtom instanceof CmdAtom) {
                 CmdAtom cmdAtom = (CmdAtom) prevAtom;
@@ -413,43 +448,39 @@ public class TexParser {
                 if (Cmds.CMD_END.equals(cmdAtom.getCmd())) {
                     // 出栈
                     atomStack.pop();
-                    // 添加到父级元素中
-                    addToTopAtom(rowAtom, false);
 
-                    Atom topAtom = atomStack.pop();
-                    if (topAtom instanceof EnvironmentAtom) {
-                        EnvironmentAtom envAtom = (EnvironmentAtom) topAtom;
-                        // end 命令处理。 end 命令后的元素格式只能是： "{envName}"
-                        if (atom instanceof TextAtom) {
-                            String envName = ((TextAtom) atom).getText();
-                            if (!envAtom.getEnv().equals(envName)) {
-                                throw new LatexParseException("环境 \"" + envAtom.getEnv() + "\" 的 \\end 参数错误");
-                            }
-                        } else {
-                            throw new LatexParseException("环境 \"" + envAtom.getEnv() + "\" 格式错误");
-                        }
-                        // 移除最后的 end 元素
-                        contentList.remove(contentList.size() - 1);
-                        // 添加到父级元素中
-                        addToTopAtom(envAtom, false);
-                        return;
-                    } else {
-                        throw new LatexParseException("环境格式错误");
+                    // 栈顶的 RowAtom 出栈
+                    RowAtom rowAtom = (RowAtom) atomStack.pop();
+
+                    // 栈顶的 EnvironmentAtom 出栈
+                    EnvironmentAtom envAtom = (EnvironmentAtom) atomStack.pop();
+
+                    // end 命令处理。 end 命令后的元素格式只能是： "{envName}"
+                    if (!(atom instanceof TextAtom)) {
+                        throw new LatexParseException("环境 \"" + envAtom.getEnv() + "\" 格式错误");
                     }
+                    // 判断环境名称
+                    String envName = ((TextAtom) atom).getText();
+                    if (!envAtom.getEnv().equals(envName)) {
+                        throw new LatexParseException("环境 \"" + envAtom.getEnv() + "\" 的 \\end 参数错误");
+                    }
+
+                    // 移除最后的 end 元素
+                    contentList.remove(contentList.size() - 1);
+
+                    // 添加到 行
+                    rowAtom.addCell(mergeAtomArray(cellAtom));
+
+                    // 添加到 环境
+                    envAtom.addRow(rowAtom);
+
+                    // 添加到父级元素中
+                    addToTopAtom(envAtom, false);
+                    return;
                 }
             }
         }
-        if (atom instanceof CodePointAtom) {
-            CodePointAtom cpAtom = (CodePointAtom) atom;
-            if (CodePointUtil.ESCAPE_CP == cpAtom.getValue()) {
-                // 出栈
-                atomStack.pop();
-                // 添加到父级元素中
-                addToTopAtom(rowAtom, false);
-                return;
-            }
-        }
-        rowAtom.addAtom(atom);
+        cellAtom.addAtom(atom);
     }
 
     /**
