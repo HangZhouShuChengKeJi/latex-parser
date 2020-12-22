@@ -73,6 +73,10 @@ public class CodePointUtil {
      */
     public static final int CP_HYPHEN_MINUS      = 0x002D;
     /**
+     * 除号: /
+     */
+    public static final int CP_SOLIDUS           = 0x002F;
+    /**
      * 等号: =
      */
     public static final int CP_EQUALS_SIGN       = 0x003D;
@@ -113,6 +117,61 @@ public class CodePointUtil {
      * 符号：@
      */
     public static final int CP_COMMERCIAL_AT    = 0x0040;
+
+    /**
+     * 符号： ±
+     */
+    public static final int CP_PLUS_MINUS_SIGN     = 0x00B1;
+    /**
+     * 符号： ·
+     */
+    public static final int CP_MIDDLE_DOT          = 0x00B7;
+    /**
+     * 符号： ×
+     */
+    public static final int CP_MULTIPLICATION_SIGN = 0x00D7;
+    /**
+     * 符号： ÷
+     */
+    public static final int CP_DIVISION_SIGN       = 0x00F7;
+
+    /**
+     * 符号： ≠
+     */
+    public static final int CP_NOT_EQUAL_TO          = 0x2260;
+    /**
+     * 符号： ≤
+     */
+    public static final int CP_LESS_THAN_EQUAL_TO    = 0x2264;
+    /**
+     * 符号： ≥
+     */
+    public static final int CP_GREATER_THAN_EQUAL_TO = 0x2265;
+
+    /**
+     * 加号:  ＋
+     */
+    public static final int CP_PLUS_SIGN_FW         = 0xFF0B;
+    /**
+     * 减号:  －
+     */
+    public static final int CP_HYPHEN_MINUS_FW      = 0xFF0D;
+    /**
+     * 除号:  ／
+     */
+    public static final int CP_SOLIDUS_FW           = 0xFF0F;
+    /**
+     * 小于号： ＜
+     */
+    public static final int CP_LESS_THAN_SIGN_FW    = 0xFF1C;
+    /**
+     * 等号:  ＝
+     */
+    public static final int CP_EQUALS_SIGN_FW       = 0xFF1D;
+    /**
+     * 大于号： ＞
+     */
+    public static final int CP_GREATER_THAN_SIGN_FW = 0xFF1E;
 
     /**
      * 是否为英文字母（不区分大小写）
