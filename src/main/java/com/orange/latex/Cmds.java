@@ -86,9 +86,17 @@ public class Cmds {
      */
     public static final String CMD_bigoplus  = "bigoplus";
     /**
+     * 符号： <
+     */
+    public static final String CMD_lt       = "lt";
+    /**
      * 符号： ≤
      */
     public static final String CMD_leq       = "leq";
+    /**
+     * 符号： >
+     */
+    public static final String CMD_gt       = "gt";
     /**
      * 符号： ≥
      */

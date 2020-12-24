@@ -20,7 +20,23 @@ public class CmdDefinitions {
         atomMap.put(Cmds.CMD_FRAC, new CmdAtomDefinition(Cmds.CMD_FRAC, FractionAtom.class));
         atomMap.put(Cmds.CMD_SQRT, new CmdAtomDefinition(Cmds.CMD_SQRT, SqrtAtom.class));
         atomMap.put(Cmds.CMD_PI, new CmdAtomDefinition(Cmds.CMD_PI));
+
+        // 算术运算符
         atomMap.put(Cmds.CMD_pm, new CmdAtomDefinition(Cmds.CMD_pm));
+        atomMap.put(Cmds.CMD_times, new CmdAtomDefinition(Cmds.CMD_times));
+        atomMap.put(Cmds.CMD_div, new CmdAtomDefinition(Cmds.CMD_div));
+
+        // 关系运算符
+        atomMap.put(Cmds.CMD_neq, new CmdAtomDefinition(Cmds.CMD_geq));
+        atomMap.put(Cmds.CMD_lt, new CmdAtomDefinition(Cmds.CMD_lt));
+        atomMap.put(Cmds.CMD_leq, new CmdAtomDefinition(Cmds.CMD_leq));
+        atomMap.put(Cmds.CMD_gt, new CmdAtomDefinition(Cmds.CMD_gt));
+        atomMap.put(Cmds.CMD_geq, new CmdAtomDefinition(Cmds.CMD_geq));
+
+        // 对数运算符
+        atomMap.put(Cmds.CMD_lg, new CmdAtomDefinition(Cmds.CMD_lg));
+        atomMap.put(Cmds.CMD_ln, new CmdAtomDefinition(Cmds.CMD_ln));
+        atomMap.put(Cmds.CMD_log, new CmdAtomDefinition(Cmds.CMD_log));
     }
 
     public static CmdAtomDefinition get(String cmd) {

@@ -36,6 +36,9 @@ public class TexParserTest {
 
         List<String> texList = new ArrayList<>();
 
+        texList.add("\\lt");
+        texList.add("\\gt");
+
         texList.add("A_1");
         texList.add("A_{11}");
         texList.add("A_3 + B_{33}");

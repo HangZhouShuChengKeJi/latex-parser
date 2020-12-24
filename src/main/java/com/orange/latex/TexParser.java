@@ -138,13 +138,17 @@ public class TexParser {
      */
     private String parseCmdName() {
         StringBuilder cmdBuilder = new StringBuilder();
-        int codePoint = codePoints[pos++];
-        while (CodePointUtil.isLatinAlphabet(codePoint)) {
-            cmdBuilder.appendCodePoint(codePoint);
-            codePoint = codePoints[pos++];
+        while (pos < codePoints.length) {
+            int codePoint = codePoints[pos++];
+            if (CodePointUtil.isLatinAlphabet(codePoint)) {
+                cmdBuilder.appendCodePoint(codePoint);
+            } else {
+                // 指针回退
+                pos--;
+                break;
+            }
         }
-        // 指针回退
-        pos--;
+
         return cmdBuilder.toString();
     }
 
