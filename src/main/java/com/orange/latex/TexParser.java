@@ -10,6 +10,7 @@ import com.orange.latex.atom.CodePointAtom;
 import com.orange.latex.atom.EnvironmentAtom;
 import com.orange.latex.atom.GroupAtom;
 import com.orange.latex.atom.LeftRightAtom;
+import com.orange.latex.atom.QuadAtom;
 import com.orange.latex.atom.RowAtom;
 import com.orange.latex.atom.SubAtom;
 import com.orange.latex.atom.SupAtom;
@@ -199,13 +200,49 @@ public class TexParser {
                         // 入栈
                         pushToStack(cmdAtom);
                     }
+                } else if (isSupportEscape(nextCodePoint)) {
+                    // 转义字符
+
+                    // 指针前进
+                    pos++;
+                    // 入栈
+                    pushToStack(new CodePointAtom(nextCodePoint));
                 } else {
-                    // 转义字符视为字符串
-                    if (isSupportEscape(nextCodePoint)) {
+                    if (nextCodePoint == CodePointUtil.CP_COMMA) {
+                        // 3/18 quad
+
+                        // 添加到父级元素中
+                        addToTopAtom(new QuadAtom(nextCodePoint, 3), false);
                         // 指针前进
                         pos++;
-                        // 入栈
-                        pushToStack(new CodePointAtom(nextCodePoint));
+                    } else if (nextCodePoint == CodePointUtil.CP_COLON) {
+                        // 4/18 quad
+
+                        // 添加到父级元素中
+                        addToTopAtom(new QuadAtom(nextCodePoint, 4), false);
+                        // 指针前进
+                        pos++;
+                    } else if (nextCodePoint == CodePointUtil.CP_SEMICOLON) {
+                        // 5/18 quad
+
+                        // 添加到父级元素中
+                        addToTopAtom(new QuadAtom(nextCodePoint, 5), false);
+                        // 指针前进
+                        pos++;
+                    } else if (nextCodePoint == CodePointUtil.SPACE_CP) {
+                        // 中等大小空格，9/18 quad
+
+                        // 添加到父级元素中
+                        addToTopAtom(new QuadAtom(nextCodePoint, 9), false);
+                        // 指针前进
+                        pos++;
+                    } else if (nextCodePoint == CodePointUtil.CP_EXCLAMATION_MARK) {
+                        // 负空格，-3/18 quad
+
+                        // 添加到父级元素中
+                        addToTopAtom(new QuadAtom(nextCodePoint, -3), false);
+                        // 指针前进
+                        pos++;
                     } else {
                         // TODO: 2020/12/11 还有其它的转义字符，遇到了在这里补充
                         throw new LatexParseException("未知的转义符：\"\\" + CodePointUtil.toString(nextCodePoint) + "\"");

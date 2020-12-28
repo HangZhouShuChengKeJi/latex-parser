@@ -110,6 +110,14 @@ public class CodePointUtil {
      */
     public static final int CP_FULL_STOP        = 0x002E;
     /**
+     * 冒号： :
+     */
+    public static final int CP_COLON            = 0x003A;
+    /**
+     * 分号： ;
+     */
+    public static final int CP_SEMICOLON        = 0x003B;
+    /**
      * 问号：?
      */
     public static final int CP_QUESTION_MASK    = 0x003F;

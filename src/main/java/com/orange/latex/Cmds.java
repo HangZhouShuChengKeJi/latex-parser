@@ -39,6 +39,17 @@ public class Cmds {
      */
     public static final String CMD_PI = "pi";
 
+    ////////  数学空格  ////////
+
+    /**
+     * 数学空格： \quad 的大小对应于目前字体中字符 ‘M’ 的宽度。
+     */
+    public static final String CMD_quad  = "quad";
+    /**
+     * 数学空格： \qquad 的大小是 \quad 的两倍。
+     */
+    public static final String CMD_qquad = "qquad";
+
     ////////  关系运算符  ////////
 
     /**
@@ -88,7 +99,7 @@ public class Cmds {
     /**
      * 符号： <
      */
-    public static final String CMD_lt       = "lt";
+    public static final String CMD_lt        = "lt";
     /**
      * 符号： ≤
      */
@@ -96,7 +107,7 @@ public class Cmds {
     /**
      * 符号： >
      */
-    public static final String CMD_gt       = "gt";
+    public static final String CMD_gt        = "gt";
     /**
      * 符号： ≥
      */

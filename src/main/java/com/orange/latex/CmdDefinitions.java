@@ -2,6 +2,8 @@ package com.orange.latex;
 
 import com.orange.latex.atom.CmdAtom;
 import com.orange.latex.atom.FractionAtom;
+import com.orange.latex.atom.QquadAtom;
+import com.orange.latex.atom.QuadAtom;
 import com.orange.latex.atom.SqrtAtom;
 
 import java.util.HashMap;
@@ -37,6 +39,10 @@ public class CmdDefinitions {
         atomMap.put(Cmds.CMD_lg, new CmdAtomDefinition(Cmds.CMD_lg));
         atomMap.put(Cmds.CMD_ln, new CmdAtomDefinition(Cmds.CMD_ln));
         atomMap.put(Cmds.CMD_log, new CmdAtomDefinition(Cmds.CMD_log));
+
+        // 数学空格
+        atomMap.put(Cmds.CMD_quad, new CmdAtomDefinition(Cmds.CMD_quad, QuadAtom.class));
+        atomMap.put(Cmds.CMD_qquad, new CmdAtomDefinition(Cmds.CMD_qquad, QquadAtom.class));
     }
 
     public static CmdAtomDefinition get(String cmd) {

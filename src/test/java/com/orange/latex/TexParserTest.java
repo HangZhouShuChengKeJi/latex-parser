@@ -36,6 +36,23 @@ public class TexParserTest {
 
         List<String> texList = new ArrayList<>();
 
+        // 数学空格
+
+        // 3/18 quad
+        texList.add("a\\,b");
+        // 4/18 quad
+        texList.add("a\\:b");
+        // 5/18 quad
+        texList.add("a\\;b");
+        // 9/18 quad
+        texList.add("a\\ b");
+        // -3/18 quad
+        texList.add("a\\!b");
+        // 1 quad
+        texList.add("a\\quad b");
+        // 2 quad
+        texList.add("a\\qquad b");
+
         texList.add("\\lt");
         texList.add("\\gt");
 
